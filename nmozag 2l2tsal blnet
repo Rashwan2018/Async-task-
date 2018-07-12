@@ -1,0 +1,69 @@
+import android.app.ProgressDialog;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.widget.TextView;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+
+public class MainActivity extends AppCompatActivity {
+    TextView textView;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        getSupportActionBar().hide();
+        textView = (TextView) findViewById(R.id.textView);
+        
+        new InternetTask().execute("http://developerhendy.16mb.com/helloworld.php");
+
+    }
+
+    class InternetTask extends AsyncTask<String, Integer, String> {
+        ProgressDialog dialog;
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            dialog = new ProgressDialog(MainActivity.this);
+            dialog.setTitle("Wait ");
+            dialog.setMessage("I am Connecting .. ");
+        }
+
+        @Override
+        protected String doInBackground(String... params) {
+            // task will done in background
+            String link = params[0];
+            String result = null;
+            try {
+                URL url = new URL(link);
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                InputStreamReader streamReader = new InputStreamReader(connection.getInputStream());
+                BufferedReader reader = new BufferedReader(streamReader);
+                result = reader.readLine();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return result;
+
+
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+            textView.setText(s);
+            dialog.dismiss();
+
+        }
+
+
+    }
+
+
+}
